@@ -7,3 +7,4 @@ Mathematics Teacher at Deerfield Academy;
     ⚙️ I use daily: .py, LaTeX
     🌍 I'm mostly active in coding copetitions
     💬 ping me about education, mathematics, problem-solving, and design thinking
+    ⌨️  ZSA Moonlander/ZSA Ergodox EZ
