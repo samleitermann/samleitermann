@@ -20,5 +20,5 @@ Pronouns : They/He
     ⌨️  ZSA Moonlander/ZSA Ergodox EZ
 
 ![GitHub Snake Dark](github-contribution-grid-snake-dark.svg)
-- 😄 Pronouns: ...
+
 
