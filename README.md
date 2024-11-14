@@ -15,7 +15,7 @@ Pronouns : They/He
 
 
     ⚙️ I use daily: .py, LaTeX
-    🌍 I'm mostly active in coding copetitions
+    🌍 I'm mostly active in coding competitions
     💬 ping me about education, mathematics, problem-solving, and design thinking
     ⌨️  ZSA Moonlander/ZSA Ergodox EZ
 
