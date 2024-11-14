@@ -8,3 +8,6 @@ Mathematics Teacher at Deerfield Academy;
     🌍 I'm mostly active in coding copetitions
     💬 ping me about education, mathematics, problem-solving, and design thinking
     ⌨️  ZSA Moonlander/ZSA Ergodox EZ
+
+![GitHub Snake Light](./assets/github-snake-light.svg#gh-light-mode-only)
+![GitHub Snake Dark](./assets/github-snake-dark.svg#gh-dark-mode-only)
