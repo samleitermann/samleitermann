@@ -19,7 +19,7 @@ Pronouns : They/He
     💬 ping me about education, mathematics, problem-solving, and design thinking
     ⌨️  ZSA Moonlander/ZSA Ergodox EZ
 
-![GitHub Snake Dark](/manual-run-output/github-contribution-grid-snake-dark.svg)
-![GitHub Snake Dark](github-contribution-grid-snake-dark.svg)
+![GitHub Snake Dark](github-contribution-grid-snake-dark.svg#gh-dark-mode-only)
+![GitHub Snake Dark](github-contribution-grid-snake.svg#gh-light-mode-only)
 
 
