@@ -20,6 +20,6 @@ Pronouns : They/He
     ⌨️  ZSA Moonlander/ZSA Ergodox EZ
 
 ![GitHub Snake Dark](https://raw.githubusercontent.com/samleitermann/samleitermann/output/github-contribution-grid-snake-dark.svg#gh-dark-mode-only)
-![GitHub Snake Dark]((https://raw.githubusercontent.com/samleitermann/samleitermann/output/github-contribution-grid-snake.svg)#gh-light-mode-only)
+![GitHub Snake](https://raw.githubusercontent.com/samleitermann/samleitermann/output/github-contribution-grid-snake.svg#gh-light-mode-only)
 
 
