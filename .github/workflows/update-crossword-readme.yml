@@ -23,6 +23,7 @@ jobs:
           import re
           from io import StringIO
           from pathlib import Path
+          from urllib.error import HTTPError, URLError
           from urllib.request import urlopen
 
           README_PATH = Path("README.md")
@@ -31,9 +32,17 @@ jobs:
 
           def latest_solve(csv_url: str) -> tuple[str, int]:
               """Return the latest non-cheated solved puzzle as (date, solve_time_secs)."""
-              with urlopen(csv_url, timeout=30) as response:
-                  payload = response.read().decode("utf-8")
-              rows = list(csv.DictReader(StringIO(payload)))
+              try:
+                  with urlopen(csv_url, timeout=30) as response:
+                      payload = response.read().decode("utf-8")
+              except (HTTPError, URLError) as exc:
+                  raise RuntimeError(f"Failed to fetch CSV source: {csv_url}") from exc
+
+              try:
+                  rows = list(csv.DictReader(StringIO(payload)))
+              except csv.Error as exc:
+                  raise RuntimeError(f"Failed to parse CSV data from: {csv_url}") from exc
+
               solved = [
                   row
                   for row in rows
@@ -45,7 +54,14 @@ jobs:
                       f"No valid solved rows (non-cheated with solve times) found in {csv_url}"
                   )
               latest = solved[-1]
-              return latest["date"], int(latest["solve_time_secs"])
+              try:
+                  solve_secs = int(latest["solve_time_secs"])
+              except ValueError as exc:
+                  raise RuntimeError(
+                      f"Invalid solve_time_secs value '{latest['solve_time_secs']}' for date "
+                      f"{latest.get('date', '<unknown>')} in {csv_url}"
+                  ) from exc
+              return latest["date"], solve_secs
 
           def format_crossword(seconds: int) -> str:
               """Format seconds as H:MM:SS when needed, otherwise M:SS."""
