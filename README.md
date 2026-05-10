@@ -22,4 +22,19 @@ Pronouns : They/He
 ![GitHub Snake Dark](https://raw.githubusercontent.com/samleitermann/samleitermann/output/github-contribution-grid-snake-dark.svg#gh-dark-mode-only)
 ![GitHub Snake](https://raw.githubusercontent.com/samleitermann/samleitermann/output/github-contribution-grid-snake.svg#gh-light-mode-only)
 
+## 📰 NYT Crossword
+
+<!-- crossword-latest:start -->
+**Latest solve (2026-05-09):** 10:58
+<!-- crossword-latest:end -->
+
+![NYT Crossword Times](https://raw.githubusercontent.com/samleitermann/NYTCrosswordScraper/main/assets/crossword-times.png)
+
+## 📰 NYT Mini Crossword
+
+<!-- mini-latest:start -->
+**Latest solve (2026-05-09):** 37s
+<!-- mini-latest:end -->
+
+![NYT Mini Crossword Times](https://raw.githubusercontent.com/samleitermann/NYTMiniScraper/main/assets/crossword-times.png)
 
