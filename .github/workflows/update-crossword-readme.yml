@@ -32,7 +32,12 @@ jobs:
           MINI_CSV_URL = "https://raw.githubusercontent.com/samleitermann/NYTMiniScraper/main/data.csv"
 
           def latest_solve(csv_url: str) -> tuple[str, int]:
-              """Return latest non-cheated solved puzzle from csv_url as (date, solve_time_secs)."""
+              """
+              Return latest non-cheated solved puzzle from csv_url as (date, solve_time_secs).
+
+              Expects CSV columns: date (YYYY-MM-DD), solve_time_secs, and cheated.
+              If multiple rows share the latest date, the first max-date row is used.
+              """
               try:
                   with urlopen(csv_url, timeout=30) as response:
                       payload = response.read().decode("utf-8")
@@ -82,7 +87,11 @@ jobs:
               return f"{seconds}s"
 
           def replace_marker_block(content: str, marker: str, replacement: str) -> str:
-              """Replace one README marker block; raise if marker is missing or duplicated."""
+              """
+              Replace one README marker block; raise if marker is missing or duplicated.
+
+              Expected marker format is <!-- marker:start -->...<!-- marker:end -->.
+              """
               pattern = re.compile(
                   rf"(<!-- {re.escape(marker)}:start -->)(.*?)(<!-- {re.escape(marker)}:end -->)",
                   flags=re.DOTALL,
