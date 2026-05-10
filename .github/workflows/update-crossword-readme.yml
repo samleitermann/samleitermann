@@ -1,6 +1,7 @@
 name: update crossword stats
 
 on:
+  # Daily at 13:20 UTC.
   schedule:
     - cron: "20 13 * * *"
   workflow_dispatch:
@@ -36,13 +37,12 @@ jobs:
                   row
                   for row in rows
                   if row.get("solve_time_secs")
-                  and row["solve_time_secs"].strip()
                   and row.get("cheated", "").strip().lower() != "true"
               ]
               if not solved:
                   raise RuntimeError(f"No solved rows found in {csv_url}")
               latest = solved[-1]
-              return latest["date"], int(float(latest["solve_time_secs"]))
+              return latest["date"], int(latest["solve_time_secs"])
 
           def format_crossword(seconds: int) -> str:
               hours, remainder = divmod(seconds, 3600)
