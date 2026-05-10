@@ -1,0 +1,92 @@
+name: update crossword stats
+
+on:
+  schedule:
+    - cron: "20 13 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update README with latest crossword solves
+        run: |
+          python - <<'PY'
+          import csv
+          import re
+          from io import StringIO
+          from pathlib import Path
+          from urllib.request import urlopen
+
+          README_PATH = Path("README.md")
+          CROSSWORD_CSV_URL = "https://raw.githubusercontent.com/samleitermann/NYTCrosswordScraper/main/data.csv"
+          MINI_CSV_URL = "https://raw.githubusercontent.com/samleitermann/NYTMiniScraper/main/data.csv"
+
+          def latest_solve(csv_url: str) -> tuple[str, int]:
+              with urlopen(csv_url) as response:
+                  payload = response.read().decode("utf-8")
+              rows = list(csv.DictReader(StringIO(payload)))
+              solved = [
+                  row
+                  for row in rows
+                  if row.get("solve_time_secs")
+                  and row["solve_time_secs"].strip()
+                  and row.get("cheated", "").strip().lower() != "true"
+              ]
+              if not solved:
+                  raise RuntimeError(f"No solved rows found in {csv_url}")
+              latest = solved[-1]
+              return latest["date"], int(float(latest["solve_time_secs"]))
+
+          def format_crossword(seconds: int) -> str:
+              hours, remainder = divmod(seconds, 3600)
+              minutes, secs = divmod(remainder, 60)
+              if hours:
+                  return f"{hours}:{minutes:02d}:{secs:02d}"
+              return f"{minutes}:{secs:02d}"
+
+          def replace_marker_block(content: str, marker: str, replacement: str) -> str:
+              pattern = re.compile(
+                  rf"(<!-- {re.escape(marker)}:start -->)(.*?)(<!-- {re.escape(marker)}:end -->)",
+                  flags=re.DOTALL,
+              )
+              updated, count = pattern.subn(rf"\1\n{replacement}\n\3", content)
+              if count != 1:
+                  raise RuntimeError(f"Expected one marker block for '{marker}', found {count}")
+              return updated
+
+          crossword_date, crossword_seconds = latest_solve(CROSSWORD_CSV_URL)
+          mini_date, mini_seconds = latest_solve(MINI_CSV_URL)
+
+          readme = README_PATH.read_text(encoding="utf-8")
+          readme = replace_marker_block(
+              readme,
+              "crossword-latest",
+              f"**Latest solve ({crossword_date}):** {format_crossword(crossword_seconds)}",
+          )
+          readme = replace_marker_block(
+              readme,
+              "mini-latest",
+              f"**Latest solve ({mini_date}):** {mini_seconds}s",
+          )
+          README_PATH.write_text(readme, encoding="utf-8")
+          PY
+
+      - name: Commit and push README changes
+        run: |
+          if git diff --quiet -- README.md; then
+            echo "No README changes detected."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "Update crossword solve stats in README"
+          git push
