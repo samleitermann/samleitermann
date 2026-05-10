@@ -21,6 +21,7 @@ jobs:
           python - <<'PY'
           import csv
           import re
+          from datetime import date
           from io import StringIO
           from pathlib import Path
           from urllib.error import HTTPError, URLError
@@ -31,7 +32,7 @@ jobs:
           MINI_CSV_URL = "https://raw.githubusercontent.com/samleitermann/NYTMiniScraper/main/data.csv"
 
           def latest_solve(csv_url: str) -> tuple[str, int]:
-              """Return the latest non-cheated solved puzzle as (date, solve_time_secs)."""
+              """Return latest non-cheated solved puzzle from csv_url as (date, solve_time_secs)."""
               try:
                   with urlopen(csv_url, timeout=30) as response:
                       payload = response.read().decode("utf-8")
@@ -53,7 +54,12 @@ jobs:
                   raise RuntimeError(
                       f"No valid solved rows (non-cheated with solve times) found in {csv_url}"
                   )
-              latest = solved[-1]
+              try:
+                  latest = max(solved, key=lambda row: date.fromisoformat(row["date"]))
+              except (KeyError, ValueError) as exc:
+                  raise RuntimeError(
+                      f"Unable to determine latest solve date from CSV source: {csv_url}"
+                  ) from exc
               try:
                   solve_secs = int(latest["solve_time_secs"])
               except ValueError as exc:
@@ -76,7 +82,7 @@ jobs:
               return f"{seconds}s"
 
           def replace_marker_block(content: str, marker: str, replacement: str) -> str:
-              """Replace one README HTML marker block with replacement text."""
+              """Replace one README marker block; raise if marker is missing or duplicated."""
               pattern = re.compile(
                   rf"(<!-- {re.escape(marker)}:start -->)(.*?)(<!-- {re.escape(marker)}:end -->)",
                   flags=re.DOTALL,
