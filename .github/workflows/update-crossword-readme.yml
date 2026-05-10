@@ -36,7 +36,7 @@ jobs:
               Return latest non-cheated solved puzzle from csv_url as (date, solve_time_secs).
 
               Expects CSV columns: date (YYYY-MM-DD), solve_time_secs, and cheated.
-              If multiple rows share the latest date, the first max-date row is used.
+              If multiple rows share the latest date, the first such row is used.
               """
               try:
                   with urlopen(csv_url, timeout=30) as response:
@@ -60,7 +60,8 @@ jobs:
                       f"No valid solved rows (non-cheated with solve times) found in {csv_url}"
                   )
               try:
-                  latest = max(solved, key=lambda row: date.fromisoformat(row["date"]))
+                  latest_date = max(date.fromisoformat(row["date"]) for row in solved)
+                  latest = next(row for row in solved if date.fromisoformat(row["date"]) == latest_date)
               except (KeyError, ValueError) as exc:
                   raise RuntimeError(
                       f"Unable to determine latest solve date from CSV source: {csv_url}"
