@@ -55,6 +55,10 @@ jobs:
                   return f"{hours}:{minutes:02d}:{secs:02d}"
               return f"{minutes}:{secs:02d}"
 
+          def format_mini(seconds: int) -> str:
+              """Keep mini solves in raw-seconds style to match the existing profile format."""
+              return f"{seconds}s"
+
           def replace_marker_block(content: str, marker: str, replacement: str) -> str:
               """Replace one README HTML marker block with replacement text."""
               pattern = re.compile(
@@ -81,7 +85,7 @@ jobs:
           readme = replace_marker_block(
               readme,
               "mini-latest",
-              f"**Latest solve ({mini_date}):** {mini_seconds}s",
+              f"**Latest solve ({mini_date}):** {format_mini(mini_seconds)}",
           )
           README_PATH.write_text(readme, encoding="utf-8")
           PY
