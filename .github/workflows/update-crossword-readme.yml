@@ -1,0 +1,137 @@
+name: update crossword stats
+
+on:
+  # Daily at 13:20 UTC.
+  schedule:
+    - cron: "20 13 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update README with latest crossword solves
+        run: |
+          python - <<'PY'
+          import csv
+          import re
+          from datetime import date as date_class
+          from io import StringIO
+          from pathlib import Path
+          from urllib.error import HTTPError, URLError
+          from urllib.request import urlopen
+
+          README_PATH = Path("README.md")
+          CROSSWORD_CSV_URL = "https://raw.githubusercontent.com/samleitermann/NYTCrosswordScraper/main/data.csv"
+          MINI_CSV_URL = "https://raw.githubusercontent.com/samleitermann/NYTMiniScraper/main/data.csv"
+
+          def latest_solve(csv_url: str) -> tuple[str, int]:
+              """
+              Return latest non-cheated solved puzzle from csv_url as (date, solve_time_secs).
+
+              Expects CSV columns: date (YYYY-MM-DD), solve_time_secs, and cheated.
+              If multiple rows share the latest date, the first such row is used.
+              """
+              try:
+                  with urlopen(csv_url, timeout=30) as response:
+                      payload = response.read().decode("utf-8")
+              except (HTTPError, URLError) as exc:
+                  raise RuntimeError(f"Failed to fetch CSV source: {csv_url}") from exc
+
+              try:
+                  rows = list(csv.DictReader(StringIO(payload)))
+              except csv.Error as exc:
+                  raise RuntimeError(f"Failed to parse CSV data from: {csv_url}") from exc
+
+              solved = [
+                  row
+                  for row in rows
+                  if row.get("solve_time_secs", "").strip() != ""
+                  and row.get("cheated", "").strip().lower() != "true"
+              ]
+              if not solved:
+                  raise RuntimeError(
+                      f"No valid solved rows (non-cheated with solve times) found in {csv_url}"
+                  )
+              try:
+                  dated_rows = [(date_class.fromisoformat(row["date"]), row) for row in solved]
+                  latest_date = max(parsed_date for parsed_date, _ in dated_rows)
+                  latest = next(row for parsed_date, row in dated_rows if parsed_date == latest_date)
+              except (KeyError, ValueError) as exc:
+                  raise RuntimeError(
+                      f"Unable to determine latest solve date from CSV source: {csv_url}"
+                  ) from exc
+              try:
+                  solve_secs = int(latest["solve_time_secs"])
+              except ValueError as exc:
+                  raise RuntimeError(
+                      f"Invalid solve_time_secs value '{latest['solve_time_secs']}' for date "
+                      f"{latest.get('date', '<unknown>')} in {csv_url}"
+                  ) from exc
+              return latest["date"], solve_secs
+
+          def format_crossword(seconds: int) -> str:
+              """Format seconds as H:MM:SS when needed, otherwise M:SS."""
+              hours, remainder = divmod(seconds, 3600)
+              minutes, secs = divmod(remainder, 60)
+              if hours:
+                  return f"{hours}:{minutes:02d}:{secs:02d}"
+              return f"{minutes}:{secs:02d}"
+
+          def format_mini(seconds: int) -> str:
+              """Keep mini solves in raw-seconds style to match the existing profile format."""
+              return f"{seconds}s"
+
+          def replace_marker_block(content: str, marker: str, replacement: str) -> str:
+              """
+              Replace one README marker block; raise if marker is missing or duplicated.
+
+              Expected marker format is <!-- marker:start -->...<!-- marker:end -->.
+              """
+              pattern = re.compile(
+                  rf"(<!-- {re.escape(marker)}:start -->)(.*?)(<!-- {re.escape(marker)}:end -->)",
+                  flags=re.DOTALL,
+              )
+              updated, count = pattern.subn(rf"\1\n{replacement}\n\3", content)
+              if count != 1:
+                  raise RuntimeError(
+                      f"Expected exactly one marker block for '{marker}', but found {count}. "
+                      "The marker may be missing or duplicated in README.md."
+                  )
+              return updated
+
+          crossword_date, crossword_seconds = latest_solve(CROSSWORD_CSV_URL)
+          mini_date, mini_seconds = latest_solve(MINI_CSV_URL)
+
+          readme = README_PATH.read_text(encoding="utf-8")
+          readme = replace_marker_block(
+              readme,
+              "crossword-latest",
+              f"**Latest solve ({crossword_date}):** {format_crossword(crossword_seconds)}",
+          )
+          readme = replace_marker_block(
+              readme,
+              "mini-latest",
+              f"**Latest solve ({mini_date}):** {format_mini(mini_seconds)}",
+          )
+          README_PATH.write_text(readme, encoding="utf-8")
+          PY
+
+      - name: Commit and push README changes
+        run: |
+          if git diff --quiet -- README.md; then
+            echo "No README changes detected."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "Update crossword solve stats in README"
+          git push
