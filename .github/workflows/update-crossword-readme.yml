@@ -40,7 +40,9 @@ jobs:
                   and row.get("cheated", "").strip().lower() != "true"
               ]
               if not solved:
-                  raise RuntimeError(f"No solved rows found in {csv_url}")
+                  raise RuntimeError(
+                      f"No valid solved rows (non-cheated with solve times) found in {csv_url}"
+                  )
               latest = solved[-1]
               return latest["date"], int(latest["solve_time_secs"])
 
@@ -58,7 +60,10 @@ jobs:
               )
               updated, count = pattern.subn(rf"\1\n{replacement}\n\3", content)
               if count != 1:
-                  raise RuntimeError(f"Expected one marker block for '{marker}', found {count}")
+                  raise RuntimeError(
+                      f"Expected exactly one marker block for '{marker}', but found {count}. "
+                      "The marker may be missing or duplicated in README.md."
+                  )
               return updated
 
           crossword_date, crossword_seconds = latest_solve(CROSSWORD_CSV_URL)
