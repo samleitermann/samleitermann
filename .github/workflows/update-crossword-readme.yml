@@ -30,6 +30,7 @@ jobs:
           MINI_CSV_URL = "https://raw.githubusercontent.com/samleitermann/NYTMiniScraper/main/data.csv"
 
           def latest_solve(csv_url: str) -> tuple[str, int]:
+              """Return the latest non-cheated solved puzzle as (date, solve_time_secs)."""
               with urlopen(csv_url) as response:
                   payload = response.read().decode("utf-8")
               rows = list(csv.DictReader(StringIO(payload)))
@@ -47,6 +48,7 @@ jobs:
               return latest["date"], int(latest["solve_time_secs"])
 
           def format_crossword(seconds: int) -> str:
+              """Format seconds as H:MM:SS when needed, otherwise M:SS."""
               hours, remainder = divmod(seconds, 3600)
               minutes, secs = divmod(remainder, 60)
               if hours:
@@ -54,6 +56,7 @@ jobs:
               return f"{minutes}:{secs:02d}"
 
           def replace_marker_block(content: str, marker: str, replacement: str) -> str:
+              """Replace one README HTML marker block with replacement text."""
               pattern = re.compile(
                   rf"(<!-- {re.escape(marker)}:start -->)(.*?)(<!-- {re.escape(marker)}:end -->)",
                   flags=re.DOTALL,
