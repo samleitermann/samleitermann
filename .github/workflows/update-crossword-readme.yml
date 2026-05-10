@@ -21,7 +21,7 @@ jobs:
           python - <<'PY'
           import csv
           import re
-          from datetime import date
+          from datetime import date as date_class
           from io import StringIO
           from pathlib import Path
           from urllib.error import HTTPError, URLError
@@ -52,8 +52,7 @@ jobs:
               solved = [
                   row
                   for row in rows
-                  if row.get("solve_time_secs") is not None
-                  and row.get("solve_time_secs", "").strip() != ""
+                  if row.get("solve_time_secs", "").strip() != ""
                   and row.get("cheated", "").strip().lower() != "true"
               ]
               if not solved:
@@ -61,7 +60,7 @@ jobs:
                       f"No valid solved rows (non-cheated with solve times) found in {csv_url}"
                   )
               try:
-                  dated_rows = [(date.fromisoformat(row["date"]), row) for row in solved]
+                  dated_rows = [(date_class.fromisoformat(row["date"]), row) for row in solved]
                   latest_date = max(parsed_date for parsed_date, _ in dated_rows)
                   latest = next(row for parsed_date, row in dated_rows if parsed_date == latest_date)
               except (KeyError, ValueError) as exc:
