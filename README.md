@@ -33,7 +33,7 @@ Pronouns : They/He
 ## 📰 NYT Mini Crossword
 
 <!-- mini-latest:start -->
-**Latest solve (2026-05-22):** 17s
+**Latest solve (2026-05-23):** 45s
 <!-- mini-latest:end -->
 
 ![NYT Mini Crossword Times](https://raw.githubusercontent.com/samleitermann/NYTMiniScraper/main/assets/crossword-times.png)
