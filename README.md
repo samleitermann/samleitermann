@@ -25,7 +25,7 @@ Pronouns : They/He
 ## 📰 NYT Crossword
 
 <!-- crossword-latest:start -->
-**Latest solve (2026-06-02):** 3:41
+**Latest solve (2026-06-03):** 8:00
 <!-- crossword-latest:end -->
 
 ![NYT Crossword Times](https://raw.githubusercontent.com/samleitermann/NYTCrosswordScraper/main/assets/crossword-times.png)
