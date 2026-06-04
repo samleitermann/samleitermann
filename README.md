@@ -25,7 +25,7 @@ Pronouns : They/He
 ## 📰 NYT Crossword
 
 <!-- crossword-latest:start -->
-**Latest solve (2026-06-03):** 8:00
+**Latest solve (2026-06-04):** 5:21
 <!-- crossword-latest:end -->
 
 ![NYT Crossword Times](https://raw.githubusercontent.com/samleitermann/NYTCrosswordScraper/main/assets/crossword-times.png)
@@ -33,7 +33,7 @@ Pronouns : They/He
 ## 📰 NYT Mini Crossword
 
 <!-- mini-latest:start -->
-**Latest solve (2026-06-02):** 20s
+**Latest solve (2026-06-04):** 43s
 <!-- mini-latest:end -->
 
 ![NYT Mini Crossword Times](https://raw.githubusercontent.com/samleitermann/NYTMiniScraper/main/assets/crossword-times.png)
